@@ -6,16 +6,7 @@
     <h1 class="display-4">The Bilton (Bezos-Hilton) Project</h1>
     @foreach (Book b in Model.Books)
     {
-        <h3>@b.Title</h3>
-        <ul class="list-group text-left list-group-item-info">
-            <li class="list-group-item list-group-item-info">ISBN: @b.Isbn</li>
-            <li class="list-group-item">Price: $@b.Price</li>
-            <li class="list-group-item list-group-item-info">Author: @b.Author</li>
-            <li class="list-group-item">Classification: @b.Classification</li>
-            <li class="list-group-item list-group-item-info">Publisher: @b.Publisher</li>
-            <li class="list-group-item">Pages: @b.PageCount</li>
-        </ul>
-        <br />
+        <partial name="bookSummary" model="b"/>
     }
     <div page-blah="@Model.PageInfo" page-action="Index"></div>
 </div>
