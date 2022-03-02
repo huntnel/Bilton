@@ -14,28 +14,32 @@ namespace Bilton.Pages
     {
         private IBookRepository repo { get; set; }
 
-        public BuyModel (IBookRepository temp)
+        public BuyModel (IBookRepository temp, Basket b)
         {
             repo = temp;
+            basket = b;
         }
         public Basket basket { get; set; }
         public string ReturnUrl { get; set; }
         public void OnGet(string returnUrl)
         {
             ReturnUrl = returnUrl ?? "/";
-            basket = HttpContext.Session.GetJson<Basket>("basket") ?? new Basket();
         }
 
         public IActionResult OnPost(int bookId, string returnUrl)
         {
             Book b = repo.Books.FirstOrDefault(x => x.BookId == bookId);
 
-            basket = HttpContext.Session.GetJson<Basket>("basket") ?? new Basket();
             basket.addItem(b, 1);
 
-            HttpContext.Session.setJson("basket", basket);
 
             return RedirectToPage(new { ReturnUrl = returnUrl});
+        }
+
+        public IActionResult OnPostRemove(int bookId, string returnUrl)
+        {
+            basket.RemoveItem(basket.Items.First(x => x.Book.BookId == bookId).Book);
+            return RedirectToPage(new { ReturnUrl = returnUrl });
         }
     }
 }
