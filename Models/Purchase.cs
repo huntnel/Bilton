@@ -37,5 +37,7 @@ namespace Bilton.Models
 
         [Required(ErrorMessage = "Please Enter a Country:")]
         public string Country { get; set; }
+
+        public bool PurchaseShipped { get; set; }
     }
 }
