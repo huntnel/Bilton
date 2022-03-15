@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,13 @@ namespace Bilton
             {
                 options.UseSqlite(Configuration["ConnectionStrings:BookDbConnection"]);
             });
+
+            services.AddDbContext<AppIdentityDBContext>( options => 
+                options.UseSqlite(Configuration["ConnectionStrings:IdentityConnection"]));
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDBContext>();
+
             services.AddScoped<IBookRepository, EFBooksRepository>();
             services.AddScoped<IPurchaseRepository, EFPurchaseRepository>();
             services.AddRazorPages();
@@ -44,6 +52,12 @@ namespace Bilton
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Xss-Protection", "1");
+                await next();
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -58,6 +72,7 @@ namespace Bilton
             app.UseStaticFiles();
             app.UseSession();
             app.UseRouting();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
@@ -91,6 +106,8 @@ namespace Bilton
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/admin/{*catchall}", "/Admin/Index");
             });
+
+            IdentitySeedData.EnsurePopulated(app);
         }
     }
 }
